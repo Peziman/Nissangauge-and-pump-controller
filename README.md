@@ -57,3 +57,15 @@ The pages displayed and the data within each page are customizable in the `ardug
    Do not forget to include a `break` command at the end of each `case` statement.
 
 3. Update the `NUM_PAGES` constant in line 5.
+
+## Changes for my project
+
+1. Add coolant water pump control for my CWA200 pump
+   - start sequence to initiate pump wakeup                 ToDo
+   - create routine to control pump speed by...       
+   - coolant temperature                                    ToDo
+   - TPS and RPM                                            ToDo
+2. Add Fan Control                                          ToDo
+3. Add RGB LED to visulaize pump status                     ToDo
+4. Add potentiometer for reference pump speed               ToDo
+5. Add "afterrun" sequence to cool down after engine stop   ToDo
