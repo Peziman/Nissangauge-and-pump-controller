@@ -5,9 +5,10 @@
 #define N_PAGES 10
 #define BUTTON_HOLD_TIME 500
 
+#define PUMP_Out 9
+
 uint8_t pageNum = EEPROM.read(0);
 
-uint8_t PUMP_Out = 9
 
 
 void setup()
