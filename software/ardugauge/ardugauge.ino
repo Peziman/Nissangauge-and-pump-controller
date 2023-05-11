@@ -7,6 +7,9 @@
 
 uint8_t pageNum = EEPROM.read(0);
 
+uint8_t PUMP_Out = 9
+
+
 void setup()
 {
   Serial.begin(115200);
@@ -16,6 +19,25 @@ void setup()
     pageNum = 0;
     EEPROM.update(0, pageNum);
   }
+   // declare output pins
+  pinMode(PUMP_Out, OUTPUT); //Pump
+  
+  // declare input pins
+  pinMode(A0,Input); //reference speed
+  
+  // initiate pump wakeup 
+  analogWrite(PUMP_Out, 0);
+  analogWrite(PUMP_Out, 255);
+  delay(300);
+  analogWrite(PUMP_Out, 0);
+  delay(100);
+  // initate reset and standby
+  analogWrite(PUMP_Out, 25);
+  delay(300);
+  analogWrite(PUMP_Out, 0);
+  delay(100);
+  // pump is now ready to use
+  
 }
 
 void loop()
