@@ -9,7 +9,11 @@
 
 uint8_t pageNum = EEPROM.read(0);
 
-
+//variables
+float sensorValue = 0.0;  // analog read of pot
+float get_CLT = 0.0;
+float get_TPS = 0.0;
+float get_RPM = 0.0;
 
 void setup()
 {
@@ -148,4 +152,13 @@ void loop()
     showSplash(F("Coming Soon!"));
     break;
   }
+  
+  //Pump control
+  //Get reference pot
+  sensorValue = map(analogRead(A0), 0, 1023, 30, 150);  // rescale 0-1024 to required range
+  //get coolant temp + TPS + RPM for Pump Speed calculation
+  get_CLT = getByte(7) - 40, 0, 120, 0;  // temp offset by 40
+  get_TPS = getByte(24) 0, 100, 0;
+  get_RPM = getWord(14), 0, 9000;
+  
 }
