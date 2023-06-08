@@ -5,7 +5,11 @@
 #define N_PAGES 10
 #define BUTTON_HOLD_TIME 500
 
-#define PUMP_Out 9
+#define PUMP_OUT 9
+
+#define WARM_UP_TEMP 60
+#define ENGINE_TARGET_TEMP 77
+#define MAX_PUMP_SPEED 216 //36-216 = 0-100% pumpspeed
 
 uint8_t pageNum = EEPROM.read(0);
 
@@ -14,6 +18,10 @@ float sensorValue = 0.0;  // analog read of pot
 float get_CLT = 0.0;
 float get_TPS = 0.0;
 float get_RPM = 0.0;
+
+uint8_t dis_pumpspeed = 0
+
+uint16_t pump_target = 0
 
 void setup()
 {
@@ -155,10 +163,29 @@ void loop()
   
   //Pump control
   //Get reference pot
-  sensorValue = map(analogRead(A0), 0, 1023, 30, 150);  // rescale 0-1024 to required range
+  sensorValue = map(analogRead(A0), 0, 1023, 36, 150);  // rescale 0-1024 to required range
   //get coolant temp + TPS + RPM for Pump Speed calculation
   get_CLT = getByte(7) - 40, 0, 120, 0;  // temp offset by 40
   get_TPS = getByte(24) 0, 100, 0;
   get_RPM = getWord(14), 0, 9000;
+  
+  if (get_CLT <=WARM_UP_TEMP) {
+    //Engine Warm Up Pumpspeed = pot read
+    pump_target = sensorValue;
+  }
+  else if (get_CLT > WARM_UP_TEMP && get_CLT <= ENGINE_TARGET_TEMP) {
+    //pumpspeed ramp till target temp. Target temp some °C over thermostat opening temp
+    pump_target = map(pump_target, WARM_UP_TEMP, ENGINE_TARGET_TEMP, sensorValue, MAX_PUMP_SPEED);
+  }
+  else if (get_CLT > ENGINE_TARGET_TEMP) {
+    //pumpspeed allways 100%
+    pump_target = 216;
+  }
+  
+  //Pump Output
+  analogWrite(PUMP_OUT, pump_target);
+  //convert Pump Output to 0-100% for displaying
+  dis_pumpspeed = map(PUMP_OUT, 36,  216, 0, 100);
+
   
 }
