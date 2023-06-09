@@ -143,10 +143,11 @@ void loop()
               F("RUN"), getBit(2, 0),
               F("sync"), getBit(31, 7),
               F("warm"), getBit(2, 3),
-              F("IGN E"), getBit(31, 5),
-              F("FAN"), fan_run,
-              F(""), false,
-              F(""), false);
+              F("Fan"), fan_run,
+              F("IGN Error"), getBit(31, 5),
+              F("Oil Error"), getBit(83, 2),
+              F("AFR Error"), getBit(83, 3),
+         
       
     //showBar(F("Battery (V)"), getByte(9), 60, 160, 1);
     break;
