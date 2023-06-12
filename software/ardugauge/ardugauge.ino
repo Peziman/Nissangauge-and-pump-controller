@@ -11,12 +11,16 @@
 #define STATUS_LED_G 6
 #define STATUS_LED_B 9
 #define FAN_OUT 4
+#define PWR_HOLD 8
+#define IGN_ON 7
 
 #define WARM_UP_TEMP 60
 #define ENGINE_TARGET_TEMP 77
 #define MAX_PUMP_SPEED 216 //36-216 = 0-100% pumpspeed
 #define FAN_START 80
 #define FAN_HYS 2
+#define RUN_TIME 60 //seconds
+
 
 uint8_t pageNum = EEPROM.read(0);
 
@@ -32,6 +36,8 @@ uint8_t led_pumpspeed = 0;
 uint16_t pump_target = 0;
   
 bool fan_run = false;
+bool after_run = false;
+bool system_hot = false;
 
 void setup()
 {
@@ -44,9 +50,16 @@ void setup()
   }
    // declare output pins
   pinMode(PUMP_Out, OUTPUT); //Pump
+  pinMode(LED_PUMP, OUTPUT); //Led indicator pump
+  pinMode(STATUS_LED_R, Output); //Status led red
+  pinMode(STATUS_LED_G, Output); //Status led green
+  pinMode(STATUS_LED_B, Output); //Status led blue
+  pinMode(FAN_OUT, Output); //Cooling fan
+  pinMode(PWR_HOLD, Output); //Power output for afterrun
   
   // declare input pins
   pinMode(A0,Input); //reference speed
+  pinMode(IGN_ON, Input); //signal from ignition key
   
   // initiate pump wakeup 
   analogWrite(PUMP_Out, 0);
@@ -61,6 +74,9 @@ void setup()
   delay(100);
   // pump is now ready to use
   
+  // initiate Power
+  digitalWrite(PWR_HOLD, HIGH);
+  
 }
 
 void loop()
@@ -71,7 +87,7 @@ void loop()
   static uint32_t timePressed = 0;
 
   bool buttonNow = !digitalRead(2);
-  digitalWrite(LED_BUILTIN, buttonNow);
+  //digitalWrite(LED_BUILTIN, buttonNow);
 
   // button pressed
   if (!buttonLast & buttonNow)
@@ -216,6 +232,8 @@ void loop()
     analogWrite(STATUS_LED_R, 0);
     analogWrite(STATUS_LED_G, 0);
     analogWrite(STATUS_LED_B, 255);
+    after_run = false;
+    system_hot = false;
   }
   else if (get_CLT > WARM_UP_TEMP && get_CLT <= ENGINE_TARGET_TEMP) {
     //pumpspeed ramp till target temp. Target temp some °C over thermostat opening temp
@@ -223,6 +241,8 @@ void loop()
     analogWrite(STATUS_LED_R, 0);
     analogWrite(STATUS_LED_G, 255);
     analogWrite(STATUS_LED_B, 0);
+    after_run = true;
+    system_hot = false;
   }
   else if (get_CLT > ENGINE_TARGET_TEMP) {
     //pumpspeed allways 100%
@@ -230,6 +250,8 @@ void loop()
     analogWrite(STATUS_LED_R, 255);
     analogWrite(STATUS_LED_G, 0);
     analogWrite(STATUS_LED_B, 0);
+    after_run = true;
+    system_hot = true;
   }
   
   //Pump Output
@@ -250,8 +272,25 @@ void loop()
   
   if (get_CLT <= (FAN_START - FAN_HYS) && fan_run == true) {
     ditalWrite(FAN_OUT, LOW);
-    fan_run = true;
+    fan_run = false;
   }
+  
+  //Afterrun control
+  bool ignon = !digitalRead(IGN_ON);
+  if (ignon == false && after_run == true) {
+    pump_target = 125; //pumpspeed 50%
+    if (system_hot == true) {
+      pump_target = 216; //pumpspeed 100%
+      digitalWrite(FAN_OUT, HIGH);
+      fan_run = true;
+    }
+    // Nachlaufzeit erstellen
+    
+    
+    
+  }
+    
+    
   
 
   
