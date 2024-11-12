@@ -1,3 +1,7 @@
+# At the moment I am not using a connection to the Speeduino, so I have started a new project (NiBoCo). This is based on this fork.
+
+I plan to continue the project including the connection to the Speeduino in spring 2025.
+
 # speeduino-ardugauge
 
 ![speeduino-ardugauge](images/ardugauge.jpeg)
